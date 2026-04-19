@@ -1640,11 +1640,12 @@ function retryQuiz() {
 }
 
 function copyResult(name) {
-  const text = `我在"西佐读名著"测出来是【${name}】！快来测测你是西游记里的哪个角色？`;
+  const link = window.location.href;
+  const text = `我在「西佐读名著」测出来是【${name}」！快来测测你是西游记里的哪个角色？\n\n${link}`;
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => alert('✅ 已复制，快去分享给朋友吧！'));
   } else {
-    alert('你的结果：' + text);
+    alert('你的结果：\n\n' + text);
   }
 }
 </script>
