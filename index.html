@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>你是西游记里的哪个角色？</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
+
+    :root {
+      --gold: #e8a317;
+      --dark-gold: #b87d0a;
+      --red: #c0392b;
+      --sky: #1a6fa8;
+      --bg: #fdf6e3;
+      --card: #fff9ee;
+      --shadow: rgba(0,0,0,0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'ZCOOL XiaoWei', '华文楷体', STKaiti, serif;
+      background: var(--bg);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse 300px 120px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 70%),
+        radial-gradient(ellipse 200px 80px at 80% 25%, rgba(255,255,255,0.5) 0%, transparent 70%),
+        radial-gradient(ellipse 250px 100px at 50% 60%, rgba(255,255,255,0.4) 0%, transparent 70%),
+        linear-gradient(180deg, #b3d9f5 0%, #dff0fa 30%, var(--bg) 70%);
+      z-index: -1;
+    }
+
+    /* ===== 顶部 ===== */
+    .hero {
+      text-align: center;
+      padding: 40px 20px 30px;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--red);
+      color: #fff;
+      font-size: 13px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      letter-spacing: 2px;
+    }
+    .hero h1 {
+      font-size: clamp(26px, 6vw, 44px);
+      color: #4a2500;
+      text-shadow: 2px 2px 0 rgba(232,163,23,0.4);
+      line-height: 1.3;
+    }
+    .hero p { margin-top: 10px; color: #7a5020; font-size: 16px; }
+
+    /* 起始页角色图 */
+    .hero-illustration {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 16px;
+      display: block;
+    }
+
+    /* ===== 进度条 ===== */
+    .progress-wrap {
+      max-width: 560px;
+      margin: 0 auto 10px;
+      padding: 0 20px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #7a5020;
+      margin-bottom: 6px;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #e8d8b8;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--red));
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+
+    /* ===== 题目卡片 ===== */
+    #quiz-section {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 16px 60px;
+    }
+
+    .question-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 6px 24px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.8);
+      border: 1.5px solid rgba(232,163,23,0.3);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .question-num { font-size: 12px; color: var(--gold); letter-spacing: 1px; margin-bottom: 8px; }
+    .question-text { font-size: clamp(17px, 4vw, 22px); color: #3a1a00; line-height: 1.6; margin-bottom: 22px; }
+    .question-scene {
+      display: inline-block;
+      background: linear-gradient(135deg, #fff3d0, #ffe0a0);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 8px 14px;
+      font-size: 14px;
+      color: #7a5020;
+      margin-bottom: 18px;
+      font-style: italic;
+    }
+
+    /* ===== 选项 ===== */
+    .options { display: flex; flex-direction: column; gap: 12px; }
+
+    .opt-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #fff;
+      border: 2px solid #e8d8b8;
+      border-radius: 14px;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      font-family: inherit;
+      font-size: 15px;
+      color: #3a1a00;
+      line-height: 1.5;
+    }
+    .opt-btn:hover {
+      border-color: var(--gold);
+      background: #fffbf0;
+      transform: translateX(4px);
+      box-shadow: 0 3px 12px rgba(232,163,23,0.2);
+    }
+    .opt-btn.selected {
+      border-color: var(--red);
+      background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+      box-shadow: 0 3px 14px rgba(192,57,43,0.2);
+    }
+    .opt-letter {
+      min-width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .opt-btn.selected .opt-letter { background: linear-gradient(135deg, var(--red), #8e1b10); }
+
+    /* ===== 下一题 ===== */
+    .next-wrap { margin-top: 20px; text-align: center; }
+    .next-btn {
+      background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: 13px 40px;
+      font-size: 17px;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(184,125,10,0.4);
+      transition: all 0.2s;
+      display: none;
+    }
+    .next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(184,125,10,0.5); }
+    .next-btn.visible { display: inline-block; animation: popIn 0.2s ease; }
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    /* ===== 结果页 ===== */
+    #result-section {
+      display: none;
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 0 16px 80px;
+    }
+
+    .result-card {
+      background: var(--card);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      border: 2px solid rgba(232,163,23,0.4);
+      animation: slideIn 0.5s ease;
+    }
+
+    .result-header {
+      padding: 36px 28px 28px;
+      text-align: center;
+      position: relative;
+    }
+    .result-illus {
+      width: 130px;
+      height: 130px;
+      margin: 0 auto 12px;
+      display: block;
+      filter: drop-shadow(0 6px 16px rgba(0,0,0,0.25));
+    }
+    .result-subtitle { font-size: 14px; color: #fff; opacity: 0.9; margin-bottom: 6px; letter-spacing: 2px; }
+    .result-name { font-size: clamp(28px, 7vw, 42px); color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    .result-alias { font-size: 16px; color: rgba(255,255,255,0.85); margin-top: 6px; }
+
+    .result-body { padding: 24px 28px 32px; }
+    .result-desc { font-size: 16px; color: #4a2500; line-height: 1.9; margin-bottom: 22px; }
+
+    .tag-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .tag {
+      background: linear-gradient(135deg, #fff3d0, #ffe0a0);
+      color: #7a3d00;
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 13px;
+      border: 1px solid rgba(232,163,23,0.4);
+    }
+
+    .traits-title { font-size: 15px; color: #7a3d00; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1.5px dashed #e8d8b8; }
+    .trait-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 14px; color: #4a2500; }
+    .trait-bar-wrap { flex: 1; height: 8px; background: #ecdfc4; border-radius: 10px; overflow: hidden; }
+    .trait-bar { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--gold), var(--red)); }
+    .trait-label { min-width: 52px; font-size: 13px; }
+    .trait-pct { min-width: 34px; text-align: right; font-size: 13px; color: var(--red); }
+
+    .school-tip {
+      background: linear-gradient(135deg, #e8f4fd, #d0e8f8);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-top: 20px;
+      border-left: 4px solid var(--sky);
+    }
+    .school-tip h4 { font-size: 14px; color: var(--sky); margin-bottom: 8px; }
+    .school-tip p { font-size: 14px; color: #1a4a6a; line-height: 1.7; }
+
+    .retry-btn {
+      display: block;
+      width: 100%;
+      margin-top: 22px;
+      background: linear-gradient(135deg, var(--red), #8e1b10);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: 14px;
+      font-size: 17px;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(192,57,43,0.35);
+      transition: all 0.2s;
+    }
+    .retry-btn:hover { transform: translateY(-2px); }
+
+    .share-row { display: flex; gap: 10px; margin-top: 12px; }
+    .share-btn {
+      flex: 1;
+      background: #fff;
+      border: 1.5px solid #e8d8b8;
+      border-radius: 30px;
+      padding: 11px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #7a3d00;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .share-btn:hover { background: #fffbf0; border-color: var(--gold); }
+
+    /* ===== 起始页 ===== */
+    #start-section { text-align: center; padding: 0 20px 60px; }
+    .start-card {
+      max-width: 520px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 24px;
+      padding: 36px 28px;
+      box-shadow: 0 8px 32px var(--shadow);
+      border: 2px solid rgba(232,163,23,0.3);
+    }
+    .role-preview {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px 0 28px;
+    }
+    .role-chip {
+      background: linear-gradient(135deg, #fff3d0, #ffe0a0);
+      border: 1.5px solid rgba(232,163,23,0.5);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 14px;
+      color: #7a3d00;
+    }
+    .start-btn {
+      background: linear-gradient(135deg, #e8a317, #c0392b);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: 16px 52px;
+      font-size: 20px;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(192,57,43,0.4);
+      transition: all 0.2s;
+    }
+    .start-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(192,57,43,0.5); }
+    .start-desc { font-size: 15px; color: #7a5020; line-height: 1.8; margin-bottom: 20px; }
+
+    @media (max-width: 480px) {
+      .question-card { padding: 22px 16px; }
+      .result-body { padding: 18px 18px 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== 起始页 ========== -->
+<div id="start-section">
+  <div class="hero">
+    <!-- 起始页SVG：五人取经插画 -->
+    <svg class="hero-illustration" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <!-- 太阳 -->
+      <circle cx="96" cy="22" r="12" fill="#FFCC00" opacity="0.85"/>
+      <line x1="96" y1="6" x2="96" y2="2" stroke="#FFCC00" stroke-width="2" stroke-linecap="round"/>
+      <line x1="96" y1="38" x2="96" y2="42" stroke="#FFCC00" stroke-width="2" stroke-linecap="round"/>
+      <line x1="80" y1="22" x2="76" y2="22" stroke="#FFCC00" stroke-width="2" stroke-linecap="round"/>
+      <line x1="112" y1="22" x2="116" y2="22" stroke="#FFCC00" stroke-width="2" stroke-linecap="round"/>
+      <line x1="84.7" y1="10.7" x2="82" y2="8" stroke="#FFCC00" stroke-width="2" stroke-linecap="round"/>
+      <line x1="107.3" y1="33.3" x2="110" y2="36" stroke="#FFCC00" stroke-width="2" stroke-linecap="round"/>
+      <!-- 云 -->
+      <ellipse cx="30" cy="28" rx="20" ry="9" fill="white" opacity="0.9"/>
+      <ellipse cx="22" cy="32" rx="12" ry="8" fill="white" opacity="0.9"/>
+      <ellipse cx="40" cy="32" rx="12" ry="8" fill="white" opacity="0.9"/>
+      <!-- 地面 -->
+      <rect x="0" y="95" width="120" height="25" fill="#c8a060" rx="4"/>
+      <rect x="0" y="90" width="120" height="8" fill="#d4b070" rx="3"/>
+      <!-- 白龙马 -->
+      <ellipse cx="60" cy="82" rx="18" ry="10" fill="white" stroke="#ddd" stroke-width="1"/>
+      <circle cx="74" cy="74" r="7" fill="white" stroke="#ddd" stroke-width="1"/>
+      <line x1="44" y1="88" x2="42" y2="96" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <line x1="50" y1="90" x2="48" y2="96" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <line x1="70" y1="88" x2="68" y2="96" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <line x1="76" y1="88" x2="78" y2="96" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <!-- 唐僧（骑马） -->
+      <circle cx="60" cy="62" r="8" fill="#f5c8a0"/>
+      <ellipse cx="60" cy="74" rx="8" ry="6" fill="#9966cc"/>
+      <rect x="53" y="60" width="14" height="16" rx="3" fill="#9966cc" opacity="0.8"/>
+      <!-- 金箍棒+悟空 -->
+      <circle cx="30" cy="58" r="7" fill="#c8800a"/>
+      <ellipse cx="30" cy="68" rx="6" ry="5" fill="#e8a020"/>
+      <line x1="38" y1="48" x2="22" y2="78" stroke="#8B4513" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="38" cy="46" r="4" fill="#FFD700"/>
+      <circle cx="22" cy="80" r="4" fill="#FFD700"/>
+      <!-- 八戒 -->
+      <ellipse cx="88" cy="60" rx="9" ry="8" fill="#ffb8b0"/>
+      <ellipse cx="84" cy="55" rx="5" ry="3" fill="#ffb8b0"/>
+      <ellipse cx="92" cy="55" rx="5" ry="3" fill="#ffb8b0"/>
+      <ellipse cx="88" cy="70" rx="8" ry="6" fill="#88bb44"/>
+      <!-- 沙僧 -->
+      <circle cx="15" cy="60" r="7" fill="#a06840"/>
+      <ellipse cx="15" cy="72" rx="7" ry="6" fill="#667799"/>
+      <line x1="8" y1="50" x2="22" y2="76" stroke="#556677" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <span class="hero-tag">西游记角色测试</span>
+    <h1>你是西游记里的<br>哪个角色？</h1>
+    <p>25道题，揭秘你的西游人格 ✨</p>
+  </div>
+
+  <div class="start-card">
+    <p class="start-desc">
+      你更像一路打妖怪的孙悟空，<br>
+      还是默默挑担子的沙悟净？<br>
+      或许你是运筹帷幄的观音菩萨？<br>
+      <strong>25道日常选择题，揭开你的角色！</strong>
+    </p>
+    <div class="role-preview">
+      <span class="role-chip">孙悟空</span>
+      <span class="role-chip">唐僧</span>
+      <span class="role-chip">猪八戒</span>
+      <span class="role-chip">沙悟净</span>
+      <span class="role-chip">白龙马</span>
+      <span class="role-chip">观音菩萨</span>
+      <span class="role-chip">如来佛祖</span>
+      <span class="role-chip">玉皇大帝</span>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">开始测试 🔥</button>
+  </div>
+</div>
+
+<!-- ========== 答题区 ========== -->
+<div id="quiz-section" style="display:none">
+  <div class="hero" style="padding-top:24px">
+    <span class="hero-tag">答题中</span>
+    <h1 style="font-size:clamp(20px,5vw,28px)">你是西游记里的哪个角色？</h1>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="prog-text">第 1 题</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div id="question-wrap"></div>
+</div>
+
+<!-- ========== 结果页 ========== -->
+<div id="result-section">
+  <div class="hero" style="padding-top:24px">
+    <span class="hero-tag">你的结果出炉了！</span>
+    <h1 style="font-size:clamp(20px,5vw,28px)">你是西游记里的</h1>
+  </div>
+  <div id="result-wrap"></div>
+</div>
+
+<script>
+// ============================================================
+// SVG 插画角色图（每个角色独立插画）
+// ============================================================
+const roleIllustrations = {
+  悟空: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <!-- 背景光环 -->
+    <circle cx="60" cy="60" r="55" fill="#fff3e0" opacity="0.6"/>
+    <!-- 金箍 -->
+    <ellipse cx="60" cy="32" rx="20" ry="5" fill="none" stroke="#FFD700" stroke-width="3"/>
+    <!-- 头部 -->
+    <circle cx="60" cy="40" r="18" fill="#c8800a"/>
+    <!-- 耳朵 -->
+    <ellipse cx="42" cy="40" rx="5" ry="7" fill="#c8800a"/>
+    <ellipse cx="78" cy="40" rx="5" ry="7" fill="#c8800a"/>
+    <!-- 脸部 -->
+    <ellipse cx="60" cy="43" rx="13" ry="11" fill="#f5c890"/>
+    <!-- 眼睛 -->
+    <circle cx="54" cy="38" r="4" fill="white"/>
+    <circle cx="66" cy="38" r="4" fill="white"/>
+    <circle cx="55" cy="39" r="2.5" fill="#1a1a1a"/>
+    <circle cx="67" cy="39" r="2.5" fill="#1a1a1a"/>
+    <!-- 眼神光 -->
+    <circle cx="56" cy="38" r="1" fill="white"/>
+    <circle cx="68" cy="38" r="1" fill="white"/>
+    <!-- 鼻子嘴巴 -->
+    <ellipse cx="60" cy="44" rx="4" ry="2.5" fill="#c87040"/>
+    <path d="M55 49 Q60 53 65 49" stroke="#8B4513" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- 身体 -->
+    <ellipse cx="60" cy="76" rx="17" ry="20" fill="#e8a020"/>
+    <rect x="43" y="62" width="34" height="22" rx="8" fill="#e8a020"/>
+    <!-- 虎皮裙 -->
+    <ellipse cx="60" cy="83" rx="17" ry="8" fill="#cc7700"/>
+    <path d="M45 80 Q50 90 55 80 Q60 90 65 80 Q70 90 75 80" fill="#cc7700" stroke="#a05500" stroke-width="1"/>
+    <!-- 金箍棒 -->
+    <line x1="82" y1="20" x2="95" y2="100" stroke="#8B4513" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="85" cy="22" rx="7" ry="5" fill="#FFD700"/>
+    <ellipse cx="93" cy="98" rx="7" ry="5" fill="#FFD700"/>
+    <!-- 腿 -->
+    <rect x="50" y="88" width="10" height="20" rx="5" fill="#c87810"/>
+    <rect x="60" y="88" width="10" height="20" rx="5" fill="#c87810"/>
+    <!-- 靴子 -->
+    <ellipse cx="55" cy="108" rx="8" ry="5" fill="#cc3300"/>
+    <ellipse cx="65" cy="108" rx="8" ry="5" fill="#cc3300"/>
+  </svg>`,
+
+  唐僧: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="55" fill="#ede0f5" opacity="0.6"/>
+    <!-- 袈裟光环 -->
+    <circle cx="60" cy="36" r="22" fill="none" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.8"/>
+    <!-- 毗卢帽 -->
+    <ellipse cx="60" cy="26" rx="18" ry="8" fill="#9966cc"/>
+    <rect x="44" y="20" width="32" height="12" rx="6" fill="#8855bb"/>
+    <rect x="50" y="14" width="20" height="10" rx="5" fill="#9966cc"/>
+    <!-- 帽顶宝珠 -->
+    <circle cx="60" cy="12" r="4" fill="#FFD700"/>
+    <circle cx="60" cy="12" r="2" fill="#ff9900"/>
+    <!-- 头部 -->
+    <circle cx="60" cy="44" r="16" fill="#f5c890"/>
+    <!-- 耳朵 -->
+    <ellipse cx="44" cy="44" rx="4" ry="6" fill="#f5c890"/>
+    <ellipse cx="76" cy="44" rx="4" ry="6" fill="#f5c890"/>
+    <!-- 眼睛（慈悲） -->
+    <path d="M52 41 Q55 38 58 41" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M62 41 Q65 38 68 41" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="55" cy="41" r="2" fill="#2a1a0a"/>
+    <circle cx="65" cy="41" r="2" fill="#2a1a0a"/>
+    <!-- 鼻嘴 -->
+    <ellipse cx="60" cy="46" rx="3" ry="2" fill="#e8a878"/>
+    <path d="M56 51 Q60 54 64 51" stroke="#c07850" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- 袈裟 -->
+    <path d="M36 65 Q30 90 38 110 L82 110 Q90 90 84 65 Q72 75 60 72 Q48 75 36 65Z" fill="#cc8822"/>
+    <path d="M44 62 Q60 78 76 62 L78 68 Q60 84 42 68Z" fill="#aa6600"/>
+    <!-- 内衬 -->
+    <rect x="46" y="62" width="28" height="48" rx="6" fill="#ff9944"/>
+    <!-- 佛珠 -->
+    <ellipse cx="60" cy="62" rx="16" ry="4" fill="none" stroke="#8B4513" stroke-width="2"/>
+    <circle cx="44" cy="62" r="4" fill="#8B4513"/>
+    <circle cx="76" cy="62" r="4" fill="#8B4513"/>
+    <circle cx="55" cy="59" r="3" fill="#6B3410"/>
+    <circle cx="65" cy="59" r="3" fill="#6B3410"/>
+    <circle cx="60" cy="58" r="3" fill="#6B3410"/>
+    <!-- 手持锡杖 -->
+    <line x1="82" y1="65" x2="88" y2="110" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="82" cy="62" r="5" fill="#FFD700"/>
+    <path d="M78 58 Q82 54 86 58" fill="none" stroke="#FFD700" stroke-width="2"/>
+  </svg>`,
+
+  八戒: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="55" fill="#e8f5e0" opacity="0.6"/>
+    <!-- 头部（大而圆） -->
+    <circle cx="60" cy="45" r="22" fill="#ffb8b0"/>
+    <!-- 猪耳朵 -->
+    <ellipse cx="38" cy="30" rx="10" ry="13" fill="#ffb8b0" transform="rotate(-20,38,30)"/>
+    <ellipse cx="38" cy="30" rx="6" ry="9" fill="#ff9999" transform="rotate(-20,38,30)"/>
+    <ellipse cx="82" cy="30" rx="10" ry="13" fill="#ffb8b0" transform="rotate(20,82,30)"/>
+    <ellipse cx="82" cy="30" rx="6" ry="9" fill="#ff9999" transform="rotate(20,82,30)"/>
+    <!-- 眼睛（笑眯眯） -->
+    <path d="M48 40 Q52 36 56 40" fill="#ffb8b0" stroke="#444" stroke-width="2" stroke-linecap="round"/>
+    <path d="M64 40 Q68 36 72 40" fill="#ffb8b0" stroke="#444" stroke-width="2" stroke-linecap="round"/>
+    <!-- 大鼻子 -->
+    <ellipse cx="60" cy="50" rx="10" ry="8" fill="#ff9999"/>
+    <circle cx="56" cy="50" r="3" fill="#cc5555"/>
+    <circle cx="64" cy="50" r="3" fill="#cc5555"/>
+    <!-- 嘴巴（大笑） -->
+    <path d="M50 58 Q60 66 70 58" stroke="#cc4444" stroke-width="2" fill="#ffaaaa" stroke-linecap="round"/>
+    <!-- 身体（胖） -->
+    <ellipse cx="60" cy="88" rx="22" ry="24" fill="#88bb44"/>
+    <rect x="38" y="70" width="44" height="32" rx="12" fill="#88bb44"/>
+    <!-- 肚子 -->
+    <ellipse cx="60" cy="85" rx="14" ry="16" fill="#aad060"/>
+    <!-- 钉耙 -->
+    <line x1="15" y1="30" x2="30" y2="100" stroke="#7a5020" stroke-width="4" stroke-linecap="round"/>
+    <rect x="8" y="28" width="22" height="8" rx="3" fill="#888"/>
+    <line x1="10" y1="28" x2="8" y2="15" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+    <line x1="15" y1="27" x2="13" y2="14" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+    <line x1="20" y1="27" x2="20" y2="14" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+    <line x1="25" y1="27" x2="27" y2="14" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+    <line x1="29" y1="28" x2="32" y2="15" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+    <!-- 腿 -->
+    <ellipse cx="50" cy="110" rx="9" ry="6" fill="#669933"/>
+    <ellipse cx="70" cy="110" rx="9" ry="6" fill="#669933"/>
+  </svg>`,
+
+  沙僧: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="55" fill="#e0eaf5" opacity="0.6"/>
+    <!-- 头部（较深肤色） -->
+    <circle cx="60" cy="42" r="18" fill="#a06840"/>
+    <!-- 发型（蓬松） -->
+    <ellipse cx="60" cy="28" rx="16" ry="10" fill="#4a3020"/>
+    <ellipse cx="46" cy="32" rx="8" ry="12" fill="#4a3020"/>
+    <ellipse cx="74" cy="32" rx="8" ry="12" fill="#4a3020"/>
+    <!-- 眼睛（沉稳） -->
+    <ellipse cx="53" cy="40" rx="5" ry="4" fill="white"/>
+    <ellipse cx="67" cy="40" rx="5" ry="4" fill="white"/>
+    <circle cx="54" cy="41" r="3" fill="#1a1a1a"/>
+    <circle cx="68" cy="41" r="3" fill="#1a1a1a"/>
+    <circle cx="55" cy="40" r="1" fill="white"/>
+    <circle cx="69" cy="40" r="1" fill="white"/>
+    <!-- 胡须 -->
+    <path d="M48 52 Q50 56 52 52" fill="none" stroke="#4a3020" stroke-width="1.5"/>
+    <path d="M68 52 Q70 56 72 52" fill="none" stroke="#4a3020" stroke-width="1.5"/>
+    <path d="M55 54 Q60 58 65 54" fill="none" stroke="#4a3020" stroke-width="1.5"/>
+    <!-- 佛珠项链 -->
+    <path d="M44 54 Q60 65 76 54" fill="none" stroke="#cc4400" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+    <circle cx="44" cy="54" r="5" fill="#cc4400"/>
+    <circle cx="52" cy="60" r="4" fill="#aa3300"/>
+    <circle cx="60" cy="63" r="5" fill="#cc4400"/>
+    <circle cx="68" cy="60" r="4" fill="#aa3300"/>
+    <circle cx="76" cy="54" r="5" fill="#cc4400"/>
+    <!-- 身体 -->
+    <rect x="42" y="65" width="36" height="38" rx="10" fill="#667799"/>
+    <path d="M42 72 Q60 80 78 72" fill="#556688" stroke="none"/>
+    <!-- 降妖宝杖 -->
+    <line x1="88" y1="18" x2="96" y2="108" stroke="#8B6940" stroke-width="5" stroke-linecap="round"/>
+    <path d="M83 18 Q88 10 93 18 Q88 24 83 18Z" fill="#cc6600"/>
+    <circle cx="88" cy="18" r="4" fill="#FFD700"/>
+    <!-- 腿 -->
+    <rect x="49" y="98" width="10" height="16" rx="5" fill="#556688"/>
+    <rect x="61" y="98" width="10" height="16" rx="5" fill="#556688"/>
+  </svg>`,
+
+  白龙马: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="55" fill="#e8f8f8" opacity="0.6"/>
+    <!-- 身体 -->
+    <ellipse cx="58" cy="82" rx="32" ry="20" fill="white" stroke="#e0e0e0" stroke-width="1.5"/>
+    <!-- 腿（四条） -->
+    <rect x="32" y="88" width="10" height="24" rx="5" fill="white" stroke="#d0d0d0" stroke-width="1"/>
+    <rect x="44" y="90" width="10" height="22" rx="5" fill="white" stroke="#d0d0d0" stroke-width="1"/>
+    <rect x="66" y="90" width="10" height="22" rx="5" fill="white" stroke="#d0d0d0" stroke-width="1"/>
+    <rect x="78" y="88" width="10" height="24" rx="5" fill="white" stroke="#d0d0d0" stroke-width="1"/>
+    <!-- 马蹄 -->
+    <ellipse cx="37" cy="113" rx="6" ry="4" fill="#c0b0a0"/>
+    <ellipse cx="49" cy="113" rx="6" ry="4" fill="#c0b0a0"/>
+    <ellipse cx="71" cy="113" rx="6" ry="4" fill="#c0b0a0"/>
+    <ellipse cx="83" cy="113" rx="6" ry="4" fill="#c0b0a0"/>
+    <!-- 颈部 -->
+    <path d="M76 65 Q92 55 95 45 Q98 35 90 28" stroke="white" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <path d="M76 65 Q92 55 95 45 Q98 35 90 28" stroke="#e8e8e8" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <!-- 头部 -->
+    <ellipse cx="88" cy="25" rx="14" ry="18" fill="white" stroke="#e0e0e0" stroke-width="1.5"/>
+    <!-- 鼻孔 -->
+    <ellipse cx="84" cy="32" rx="3" ry="2" fill="#f0e0e0"/>
+    <ellipse cx="92" cy="32" rx="3" ry="2" fill="#f0e0e0"/>
+    <!-- 眼睛 -->
+    <circle cx="82" cy="22" r="5" fill="white" stroke="#ccc" stroke-width="1"/>
+    <circle cx="83" cy="22" r="3" fill="#2a1a0a"/>
+    <circle cx="84" cy="21" r="1" fill="white"/>
+    <!-- 耳朵 -->
+    <ellipse cx="82" cy="10" rx="4" ry="7" fill="white" stroke="#ddd" stroke-width="1" transform="rotate(-15,82,10)"/>
+    <ellipse cx="94" cy="10" rx="4" ry="7" fill="white" stroke="#ddd" stroke-width="1" transform="rotate(15,94,10)"/>
+    <!-- 鬃毛 -->
+    <path d="M90 8 Q96 18 92 28 Q98 20 96 10 Q100 22 96 30" fill="none" stroke="#ddd" stroke-width="3" stroke-linecap="round"/>
+    <!-- 尾巴 -->
+    <path d="M28 76 Q15 82 12 94 Q18 88 16 98 Q22 90 20 100" fill="none" stroke="#e8e8e8" stroke-width="4" stroke-linecap="round"/>
+    <!-- 马鞍（红色） -->
+    <ellipse cx="55" cy="68" rx="20" ry="8" fill="#cc3333" opacity="0.85"/>
+    <ellipse cx="55" cy="66" rx="16" ry="5" fill="#ee4444" opacity="0.85"/>
+    <!-- 流苏 -->
+    <line x1="36" y1="68" x2="34" y2="78" stroke="#FFD700" stroke-width="2"/>
+    <line x1="39" y1="70" x2="37" y2="80" stroke="#FFD700" stroke-width="2"/>
+    <line x1="74" y1="68" x2="76" y2="78" stroke="#FFD700" stroke-width="2"/>
+    <line x1="71" y1="70" x2="73" y2="80" stroke="#FFD700" stroke-width="2"/>
+    <!-- 龙鳞纹饰 -->
+    <path d="M42 72 Q48 68 54 72 Q60 68 66 72" fill="none" stroke="#aa2222" stroke-width="1.5" opacity="0.6"/>
+  </svg>`,
+
+  观音: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="55" fill="#fce8f8" opacity="0.6"/>
+    <!-- 光环 -->
+    <circle cx="60" cy="36" r="26" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.7"/>
+    <circle cx="60" cy="36" r="22" fill="none" stroke="#ffcc44" stroke-width="1" opacity="0.5"/>
+    <!-- 白色头纱 -->
+    <path d="M38 34 Q60 18 82 34 Q84 55 80 75 Q60 85 40 75 Q36 55 38 34Z" fill="white" opacity="0.95"/>
+    <!-- 头部 -->
+    <circle cx="60" cy="42" r="15" fill="#f5e0d0"/>
+    <!-- 眼睛（慈悲低垂） -->
+    <path d="M51 40 Q55 37 59 40" fill="none" stroke="#4a2a10" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M61 40 Q65 37 69 40" fill="none" stroke="#4a2a10" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- 朱砂点 -->
+    <circle cx="60" cy="36" r="2" fill="#cc2222"/>
+    <!-- 嘴 -->
+    <path d="M56 49 Q60 52 64 49" stroke="#c07858" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- 耳环 -->
+    <circle cx="44" cy="44" r="4" fill="none" stroke="#FFD700" stroke-width="2"/>
+    <circle cx="76" cy="44" r="4" fill="none" stroke="#FFD700" stroke-width="2"/>
+    <!-- 白色袍子 -->
+    <path d="M36 68 Q30 95 36 115 L84 115 Q90 95 84 68 Q72 78 60 75 Q48 78 36 68Z" fill="white" opacity="0.95" stroke="#e8e0f0" stroke-width="1"/>
+    <!-- 腰带（金色） -->
+    <rect x="44" y="68" width="32" height="6" rx="3" fill="#FFD700" opacity="0.8"/>
+    <!-- 净瓶 -->
+    <ellipse cx="88" cy="80" rx="7" ry="10" fill="white" stroke="#aaccff" stroke-width="1.5"/>
+    <rect x="84" y="68" width="8" height="6" rx="4" fill="white" stroke="#aaccff" stroke-width="1.5"/>
+    <line x1="88" y1="62" x2="88" y2="68" stroke="#aaccff" stroke-width="2" stroke-linecap="round"/>
+    <!-- 柳枝 -->
+    <path d="M88 62 Q94 52 98 44" stroke="#66bb44" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <path d="M88 62 Q80 54 78 46" stroke="#66bb44" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <path d="M91 56 Q96 50 93 44" stroke="#66bb44" stroke-width="1.5" fill="none"/>
+    <!-- 莲台 -->
+    <ellipse cx="60" cy="114" rx="22" ry="8" fill="#ffaacc" opacity="0.7"/>
+    <path d="M40 114 Q50 105 60 108 Q70 105 80 114" fill="#ff88aa" opacity="0.6"/>
+  </svg>`,
+
+  如来: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="55" fill="#fffbe0" opacity="0.7"/>
+    <!-- 大光环 -->
+    <circle cx="60" cy="44" r="38" fill="none" stroke="#FFD700" stroke-width="3" opacity="0.4"/>
+    <circle cx="60" cy="44" r="34" fill="none" stroke="#ffcc00" stroke-width="2" opacity="0.3"/>
+    <circle cx="60" cy="44" r="30" fill="none" stroke="#ffe066" stroke-width="1.5" opacity="0.5"/>
+    <!-- 螺髻（头发） -->
+    <circle cx="60" cy="24" r="15" fill="#3a2a80"/>
+    <circle cx="54" cy="20" r="4" fill="#4a3a90"/>
+    <circle cx="60" cy="18" r="4" fill="#4a3a90"/>
+    <circle cx="66" cy="20" r="4" fill="#4a3a90"/>
+    <circle cx="57" cy="24" r="4" fill="#4a3a90"/>
+    <circle cx="63" cy="24" r="4" fill="#4a3a90"/>
+    <!-- 顶髻宝珠 -->
+    <circle cx="60" cy="12" r="5" fill="#FFD700"/>
+    <circle cx="60" cy="12" r="3" fill="#ff9900"/>
+    <!-- 头部 -->
+    <circle cx="60" cy="40" r="17" fill="#f0d8b8"/>
+    <!-- 白毫 -->
+    <circle cx="60" cy="35" r="2.5" fill="white"/>
+    <circle cx="60" cy="35" r="1.5" fill="#ffe0b0"/>
+    <!-- 眼睛（半睁） -->
+    <path d="M50 39 Q55 36 60 39" fill="#f0d8b8" stroke="#4a3020" stroke-width="1.5"/>
+    <path d="M60 39 Q65 36 70 39" fill="#f0d8b8" stroke="#4a3020" stroke-width="1.5"/>
+    <ellipse cx="55" cy="39" rx="3" ry="1.5" fill="#3a2a10"/>
+    <ellipse cx="65" cy="39" rx="3" ry="1.5" fill="#3a2a10"/>
+    <!-- 嘴（微笑） -->
+    <path d="M54 48 Q60 52 66 48" stroke="#c09070" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- 袈裟（金红） -->
+    <path d="M32 62 Q24 90 30 115 L90 115 Q96 90 88 62 Q74 74 60 70 Q46 74 32 62Z" fill="#cc8800"/>
+    <path d="M40 58 Q60 76 80 58 L82 66 Q60 82 38 66Z" fill="#aa6600"/>
+    <!-- 内袍 -->
+    <rect x="44" y="62" width="32" height="52" rx="8" fill="#ee9900"/>
+    <!-- 手印（禅定） -->
+    <ellipse cx="46" cy="80" rx="9" ry="7" fill="#f0d8b8"/>
+    <ellipse cx="74" cy="80" rx="9" ry="7" fill="#f0d8b8"/>
+    <ellipse cx="60" cy="84" rx="16" ry="8" fill="#f0d8b8" opacity="0.8"/>
+    <!-- 莲座 -->
+    <ellipse cx="60" cy="116" rx="30" ry="10" fill="#ffaacc" opacity="0.8"/>
+    <path d="M32 116 Q46 104 60 108 Q74 104 88 116" fill="#ff88bb" opacity="0.6"/>
+    <path d="M38 114 Q52 105 66 110 Q76 106 84 114" fill="#ffaacc" opacity="0.5"/>
+  </svg>`,
+
+  玉帝: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="55" fill="#f0e8ff" opacity="0.6"/>
+    <!-- 冕旒冠（天帝王冠） -->
+    <rect x="36" y="16" width="48" height="18" rx="4" fill="#8B0000"/>
+    <rect x="38" y="14" width="44" height="6" rx="3" fill="#aa1100"/>
+    <!-- 冕旒（垂珠） -->
+    <line x1="44" y1="34" x2="44" y2="46" stroke="#FFD700" stroke-width="1.5"/>
+    <circle cx="44" cy="47" r="3" fill="#FFD700"/>
+    <line x1="52" y1="34" x2="52" y2="48" stroke="#FFD700" stroke-width="1.5"/>
+    <circle cx="52" cy="49" r="3" fill="#FFD700"/>
+    <line x1="60" y1="34" x2="60" y2="48" stroke="#FFD700" stroke-width="1.5"/>
+    <circle cx="60" cy="49" r="3" fill="#FFD700"/>
+    <line x1="68" y1="34" x2="68" y2="48" stroke="#FFD700" stroke-width="1.5"/>
+    <circle cx="68" cy="49" r="3" fill="#FFD700"/>
+    <line x1="76" y1="34" x2="76" y2="46" stroke="#FFD700" stroke-width="1.5"/>
+    <circle cx="76" cy="47" r="3" fill="#FFD700"/>
+    <!-- 顶部宝珠 -->
+    <circle cx="60" cy="12" r="6" fill="#FFD700"/>
+    <circle cx="60" cy="12" r="3.5" fill="#ff9900"/>
+    <!-- 头部 -->
+    <circle cx="60" cy="52" r="16" fill="#f0d0b0"/>
+    <!-- 眼睛（威严） -->
+    <ellipse cx="53" cy="49" rx="5" ry="4" fill="white"/>
+    <ellipse cx="67" cy="49" rx="5" ry="4" fill="white"/>
+    <circle cx="54" cy="50" r="3" fill="#1a1a1a"/>
+    <circle cx="68" cy="50" r="3" fill="#1a1a1a"/>
+    <circle cx="55" cy="49" r="1" fill="white"/>
+    <circle cx="69" cy="49" r="1" fill="white"/>
+    <!-- 胡须（长而尊贵） -->
+    <path d="M50 62 Q52 72 48 80" stroke="#888" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M54 64 Q56 76 54 84" stroke="#888" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M60 65 Q60 78 60 86" stroke="#888" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M66 64 Q64 76 66 84" stroke="#888" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M70 62 Q68 72 72 80" stroke="#888" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- 龙袍 -->
+    <path d="M30 70 Q22 95 28 116 L92 116 Q98 95 90 70 Q75 82 60 78 Q45 82 30 70Z" fill="#8B0080"/>
+    <path d="M38 66 Q60 84 82 66 L84 74 Q60 90 36 74Z" fill="#660066"/>
+    <!-- 龙纹 -->
+    <path d="M40 90 Q50 82 55 90 Q60 82 65 90 Q70 82 80 90" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.7"/>
+    <path d="M38 100 Q48 92 53 100 Q60 92 67 100 Q72 92 82 100" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.5"/>
+    <!-- 玉笏 -->
+    <rect x="87" y="62" width="10" height="38" rx="5" fill="white" stroke="#aaccaa" stroke-width="1.5"/>
+    <rect x="86" y="60" width="12" height="8" rx="4" fill="#cceecc" stroke="#aaccaa" stroke-width="1"/>
+  </svg>`
+};
+
+// ============================================================
+// 题目数据（25道，贴近小学/初中日常）
+// 角色顺序: [悟空, 唐僧, 八戒, 沙僧, 白龙马, 观音, 如来, 玉帝]
+// ============================================================
+const ROLES = ['悟空','唐僧','八戒','沙僧','白龙马','观音','如来','玉帝'];
+
+const questions = [
+  // Q1
+  {
+    scene: "📚 学习场景",
+    text: "老师布置了一项全班合作的大作业，你最可能？",
+    opts: [
+      { text: "第一个站出来，说「我来当组长，咱们这样做！」", scores: [3,0,0,0,0,1,1,2] },
+      { text: "认真制定计划，反复提醒大家注意细节和时间", scores: [0,3,0,0,0,2,1,1] },
+      { text: "先打听哪个任务最轻松，尽量分到简单的活儿", scores: [0,0,3,0,0,0,0,1] },
+      { text: "默默把最难啃、最累人的部分做完，不声张", scores: [0,0,0,3,2,0,0,0] },
+    ]
+  },
+  // Q2
+  {
+    scene: "🍱 午饭时间",
+    text: "今天食堂出了一道从没见过的新菜，你会？",
+    opts: [
+      { text: "直接夹一口，管它啥味儿，先试试再说！", scores: [3,0,1,0,0,0,0,1] },
+      { text: "先问同学好不好吃，听说好才去尝", scores: [0,2,1,0,0,1,0,0] },
+      { text: "哇，新菜！多打一勺，好吃的不能错过", scores: [0,0,3,0,0,0,0,0] },
+      { text: "还是吃老样子吧，熟悉的最稳", scores: [0,1,0,3,2,0,0,1] },
+    ]
+  },
+  // Q3
+  {
+    scene: "🎮 课余时间",
+    text: "放学后大家在聊打游戏，你发现自己不太会玩，你会？",
+    opts: [
+      { text: "「我要练到最强！」，回家立刻研究攻略", scores: [3,0,0,0,0,0,1,1] },
+      { text: "觉得玩游戏不如看书，婉拒然后去做作业", scores: [0,3,0,0,0,1,2,0] },
+      { text: "厚着脸皮请最强的同学教你，顺便蹭零食", scores: [0,0,3,0,0,0,0,0] },
+      { text: "站在旁边默默观察，等学会了再悄悄开始", scores: [0,0,0,2,3,0,1,0] },
+    ]
+  },
+  // Q4
+  {
+    scene: "😡 遭遇不公平",
+    text: "你明明对了，老师却批评了你，你会怎么做？",
+    opts: [
+      { text: "当场就跟老师说「老师，我觉得我没错」", scores: [3,0,0,0,0,1,0,1] },
+      { text: "先忍住，课后找老师心平气和地解释清楚", scores: [0,3,0,0,0,2,2,0] },
+      { text: "虽然委屈，但还是认了，回家和父母吐槽", scores: [0,0,2,1,0,0,0,0] },
+      { text: "一句话不说，把委屈咽下去继续干活", scores: [0,0,0,3,2,0,0,0] },
+    ]
+  },
+  // Q5
+  {
+    scene: "👥 交朋友",
+    text: "班里来了一位转学生，你会？",
+    opts: [
+      { text: "主动跑过去：「我叫XX，咱们交个朋友！」", scores: [3,0,1,0,0,1,0,0] },
+      { text: "关注他是否孤单，如果看起来难过就上前安慰", scores: [0,3,0,0,0,3,1,0] },
+      { text: "等他先来找我，有人介绍才去认识", scores: [0,0,1,1,1,0,1,3] },
+      { text: "默默帮他解决实际问题，比如借他笔记", scores: [0,0,0,3,2,1,0,0] },
+    ]
+  },
+  // Q6
+  {
+    scene: "📝 考试前夕",
+    text: "还有一天就要期末考试，你最可能在做什么？",
+    opts: [
+      { text: "「昨天已经复习够了！」，继续做其他感兴趣的事", scores: [3,0,1,0,0,0,0,0] },
+      { text: "把错题本翻来覆去再看一遍，直到胸有成竹", scores: [0,3,0,0,0,1,2,1] },
+      { text: "脑子里一直想考完试去哪儿玩，复习心不在焉", scores: [0,0,3,0,0,0,0,0] },
+      { text: "把复习计划一步步执行完，然后早点睡", scores: [0,1,0,2,3,0,1,1] },
+    ]
+  },
+  // Q7
+  {
+    scene: "🌧️ 遇到困难",
+    text: "你负责的班级任务突然出了大麻烦，你的第一反应？",
+    opts: [
+      { text: "「我来搞定！」，立刻开始想办法，绝不退缩", scores: [3,0,0,0,0,0,1,1] },
+      { text: "提醒自己冷静，先分析原因再给大家方向", scores: [0,2,0,0,0,3,2,0] },
+      { text: "有点慌，先找好朋友帮忙一起想办法", scores: [0,0,2,1,0,1,0,0] },
+      { text: "埋头就开始处理，不声张，一个人默默扛", scores: [0,0,0,3,3,0,0,0] },
+    ]
+  },
+  // Q8
+  {
+    scene: "🎨 学校艺术节",
+    text: "学校开放艺术节，可以自由参与，你会？",
+    opts: [
+      { text: "表演最酷最炸的节目，想让全场都记住我", scores: [3,0,1,0,0,0,0,1] },
+      { text: "写一篇感人的故事或演讲稿，传递正能量", scores: [0,3,0,0,0,2,1,0] },
+      { text: "和最多朋友合作，最好又热闹又轻松", scores: [0,0,3,0,0,0,0,0] },
+      { text: "在台下帮忙搬道具、布置场地，默默贡献", scores: [0,0,0,3,2,0,0,0] },
+    ]
+  },
+  // Q9
+  {
+    scene: "💬 朋友秘密",
+    text: "好朋友跟你说了一个大秘密，你会？",
+    opts: [
+      { text: "守住秘密，但如果对朋友有害，一定会说出来", scores: [2,1,0,0,0,3,2,0] },
+      { text: "无论如何都严格保密，这是朋友对我的信任", scores: [0,3,0,1,2,0,1,0] },
+      { text: "努力守住，但嘴巴痒，可能会告诉最信任的人", scores: [0,0,3,0,0,0,0,0] },
+      { text: "默默放在心里，朋友不问我就不提", scores: [0,0,0,3,2,0,0,1] },
+    ]
+  },
+  // Q10
+  {
+    scene: "🏆 面对失败",
+    text: "你参加比赛输了，你的感受和做法是？",
+    opts: [
+      { text: "「下次一定赢回来！」，当天就开始想怎么改进", scores: [3,0,0,0,0,0,1,1] },
+      { text: "会难过，但相信只要坚持做对的事，结果终会好", scores: [0,3,0,0,0,2,2,0] },
+      { text: "难过一阵子，然后用好吃的或玩耍让自己开心", scores: [0,0,3,0,0,0,0,0] },
+      { text: "把情绪放在一边，分析哪里可以做得更好", scores: [0,0,0,2,3,1,1,1] },
+    ]
+  },
+  // Q11
+  {
+    scene: "🌟 认识自己",
+    text: "你觉得自己最大的优点是？",
+    opts: [
+      { text: "胆大敢拼，什么困难都挡不住我", scores: [3,0,0,0,0,0,0,1] },
+      { text: "心地善良，真心关心身边每一个人", scores: [0,3,1,0,0,3,1,0] },
+      { text: "超级会玩，能让大家一起开心起来", scores: [0,0,3,0,0,0,0,0] },
+      { text: "稳得住，无论多累多苦都能坚持到底", scores: [0,0,0,3,3,0,1,0] },
+    ]
+  },
+  // Q12
+  {
+    scene: "🔮 面对规则",
+    text: "你觉得哪种说法最符合你？",
+    opts: [
+      { text: "「规则是死的，人是活的，关键时刻要灵活变通」", scores: [3,0,1,0,0,1,0,0] },
+      { text: "「有好的规则才有好的秩序，我愿意遵守和维护」", scores: [0,2,0,0,0,1,2,3] },
+      { text: "「能偷懒就偷懒，反正结果好就行了」", scores: [0,0,3,0,0,0,0,0] },
+      { text: "「规则我都尊重，把手头的事踏踏实实做好最重要」", scores: [0,1,0,3,3,1,1,1] },
+    ]
+  },
+  // Q13
+  {
+    scene: "🎒 课外活动",
+    text: "学校组织周末研学活动，你最期待哪种？",
+    opts: [
+      { text: "攀岩、漂流——越刺激越好，越危险越兴奋！", scores: [3,0,1,0,0,0,0,0] },
+      { text: "参观博物馆、历史遗址，了解文化传承", scores: [0,3,0,0,0,2,3,1] },
+      { text: "烧烤露营——吃喝玩乐，绝不能少了我！", scores: [0,0,3,0,0,0,0,0] },
+      { text: "农场劳动体验——踏踏实实做点真实的事", scores: [0,0,0,3,2,0,0,1] },
+    ]
+  },
+  // Q14
+  {
+    scene: "📖 阅读习惯",
+    text: "你更喜欢看哪类书或故事？",
+    opts: [
+      { text: "冒险类——主角不断闯关，越挫越勇", scores: [3,0,1,0,0,0,0,0] },
+      { text: "励志类——讲述坚持信仰、改变命运的故事", scores: [0,3,0,0,0,1,2,1] },
+      { text: "搞笑漫画——哈哈哈，能让我笑出来最好", scores: [0,0,3,0,0,0,0,0] },
+      { text: "历史纪实——了解真实发生过的事情", scores: [0,1,0,2,1,1,3,2] },
+    ]
+  },
+  // Q15
+  {
+    scene: "😴 早晨起床",
+    text: "第二天有重要的事情，你前一晚会怎么准备？",
+    opts: [
+      { text: "「明天的事明天再说」，该玩还是玩，到点就睡", scores: [2,0,2,0,0,0,0,0] },
+      { text: "前一晚把东西一件件整理好，确认不落下", scores: [0,3,0,1,2,1,2,2] },
+      { text: "睡前刷很久手机或聊天，睡晚了才发现完蛋", scores: [0,0,3,0,0,0,0,0] },
+      { text: "默默把明天要用的东西备好，早早睡觉", scores: [0,0,0,3,3,0,1,1] },
+    ]
+  },
+  // Q16
+  {
+    scene: "🤝 解决矛盾",
+    text: "班里两个好朋友闹矛盾了，你会怎么做？",
+    opts: [
+      { text: "直接帮他们判断谁对谁错，快刀斩乱麻", scores: [3,0,0,0,0,1,1,2] },
+      { text: "分别听他们说，然后温柔劝和，不偏袒任何一方", scores: [0,2,0,0,0,3,2,0] },
+      { text: "说「你们别吵了，一起吃东西比什么都好」", scores: [0,0,3,0,0,1,0,0] },
+      { text: "不主动介入，但需要我时我一定到", scores: [0,0,0,3,2,0,0,1] },
+    ]
+  },
+  // Q17
+  {
+    scene: "💡 有新想法",
+    text: "你突然有一个很酷的想法，你会？",
+    opts: [
+      { text: "立刻行动，先干起来再说，边做边改！", scores: [3,0,1,0,0,0,0,0] },
+      { text: "认真思考可行性，写下来，计划好再推进", scores: [0,2,0,0,0,2,3,2] },
+      { text: "马上和朋友分享，先炫耀一圈再说", scores: [0,0,3,0,0,0,0,0] },
+      { text: "先默默试试小规模的，确认可行再推广", scores: [0,0,0,2,3,1,1,1] },
+    ]
+  },
+  // Q18
+  {
+    scene: "🏫 班级荣誉",
+    text: "为了让班级在运动会上取得好成绩，你愿意？",
+    opts: [
+      { text: "报名最难、最竞争激烈的项目，就喜欢挑战强者", scores: [3,0,0,0,0,0,0,1] },
+      { text: "帮大家制定训练计划，做好后勤保障工作", scores: [0,3,0,1,0,2,2,2] },
+      { text: "报名轻松的项目，顺便当个快乐的拉拉队", scores: [0,0,3,0,0,0,0,0] },
+      { text: "做最苦最累的幕后工作，让出风头的机会给别人", scores: [0,0,0,3,3,0,0,0] },
+    ]
+  },
+  // Q19
+  {
+    scene: "🌈 理想中的自己",
+    text: "你最希望别人怎么评价你？",
+    opts: [
+      { text: "「他/她超厉害，什么都不怕，解决问题超快！」", scores: [3,0,0,0,0,0,1,1] },
+      { text: "「他/她是个好人，善良又有原则，值得信任」", scores: [0,3,0,0,0,3,1,0] },
+      { text: "「他/她超有趣，跟他/她在一起永远不无聊！」", scores: [0,0,3,0,0,0,0,0] },
+      { text: "「他/她太靠谱了，交给他/她的事一定能完成」", scores: [0,0,0,3,3,0,1,0] },
+    ]
+  },
+  // Q20
+  {
+    scene: "🎯 目标感",
+    text: "你对「努力」这件事是什么态度？",
+    opts: [
+      { text: "目标越大越好，拼尽全力去冲，失败了再冲！", scores: [3,0,0,0,0,0,1,1] },
+      { text: "要找到真正有意义的目标，然后坚定地走下去", scores: [0,3,0,0,0,1,3,1] },
+      { text: "努力很好，但也要享受过程，别搞得太苦了", scores: [0,0,3,0,0,1,0,0] },
+      { text: "设定计划，一步一步执行，踏实最重要", scores: [0,1,0,3,3,0,1,2] },
+    ]
+  },
+  // Q21
+  {
+    scene: "🔒 压力来了",
+    text: "最近功课压力很大，你会怎么应对？",
+    opts: [
+      { text: "越有压力越亢奋，「正好练练我的」，反而更起劲", scores: [3,0,0,0,0,0,1,0] },
+      { text: "提醒自己这是必经之路，咬咬牙一定能过去", scores: [0,3,0,0,0,1,2,1] },
+      { text: "找朋友聊聊天，吃点好的，先让心情好起来", scores: [0,0,3,0,0,1,0,0] },
+      { text: "把任务拆成小块，一项一项完成，不急不慌", scores: [0,0,0,2,3,1,1,2] },
+    ]
+  },
+  // Q22
+  {
+    scene: "🧩 团队分工",
+    text: "小组里有人一直不好好配合，你会？",
+    opts: [
+      { text: "直接说「你这样不行，大家都在等你！」", scores: [3,0,0,0,0,1,1,2] },
+      { text: "私下找他谈谈，了解他是不是有什么困难", scores: [0,3,0,0,0,3,1,0] },
+      { text: "装作没看见，反正不干我事，自己管好自己", scores: [0,0,2,0,0,0,0,1] },
+      { text: "默默多做一些，把他那份也补上", scores: [0,0,0,3,3,0,0,0] },
+    ]
+  },
+  // Q23
+  {
+    scene: "🌙 睡前时间",
+    text: "睡前你最喜欢做什么？",
+    opts: [
+      { text: "想今天哪件事没做好，明天一定要搞定它！", scores: [3,0,0,0,0,0,2,1] },
+      { text: "回想今天有没有哪里可以做得更好、更善良", scores: [0,3,0,0,0,3,2,0] },
+      { text: "刷视频或聊天，直到困了再睡", scores: [0,0,3,0,0,0,0,0] },
+      { text: "回顾今天的任务清单，打勾，然后安心睡着", scores: [0,0,0,3,3,0,1,1] },
+    ]
+  },
+  // Q24
+  {
+    scene: "💰 零花钱",
+    text: "你刚拿到一笔零花钱，你会怎么用？",
+    opts: [
+      { text: "立刻去买一直想要的东西，说干就干！", scores: [3,0,1,0,0,0,0,0] },
+      { text: "存起来，也许将来有更有意义的用处", scores: [0,3,0,1,2,0,2,2] },
+      { text: "买好吃的，叫上朋友一起享受！", scores: [0,0,3,0,0,0,0,0] },
+      { text: "先记账，规划好再决定花在哪儿", scores: [0,0,0,2,2,1,2,3] },
+    ]
+  },
+  // Q25
+  {
+    scene: "✨ 最后一题",
+    text: "取经路上最难走的那段，你会？",
+    opts: [
+      { text: "「妖怪哪里走！」冲在最前面，越难越上头", scores: [3,0,0,0,0,0,0,0] },
+      { text: "闭上眼睛默念「只要心中有信念，前路再难也会过」", scores: [0,3,0,0,0,1,3,1] },
+      { text: "求求老大让我多带点干粮，吃饱了才有力气走", scores: [0,0,3,0,0,0,0,0] },
+      { text: "挑起行李，跟在后面，一步一步走，不怨不恨", scores: [0,0,0,3,3,0,0,0] },
+    ]
+  },
+];
+
+// ============================================================
+// 角色数据
+// ============================================================
+const roleData = {
+  悟空: {
+    name: '孙悟空',
+    alias: '齐天大圣 / 行者',
+    color: ['#e8830a','#c0390b'],
+    tags: ['胆大无畏','天赋极高','重情重义','叛逆独立'],
+    desc: '你就像孙悟空——天赋异禀，充满斗志！面对困难你永远是冲在最前面的那一个，敢说敢做，绝不服输。你有自己的想法，不喜欢被束缚，有时可能有点急躁，但内心深处极其重情义。在班级里，你常常是引领风潮的人，大家遇到麻烦第一个想到的就是你。',
+    traits: [['行动力', 95], ['创造力', 85], ['领导力', 90], ['耐心', 50]],
+    tip: '你的冲劲是最大的资产！但在做决定前多想一步，跟同学多商量，你的能量会更有方向感，也更受大家信任。'
+  },
+  唐僧: {
+    name: '唐僧',
+    alias: '唐三藏 / 金蝉子',
+    color: ['#6b48cc','#4a2ea8'],
+    tags: ['坚定执着','悲天悯人','原则分明','感化他人'],
+    desc: '你就像唐僧——心中有信仰，目标永不变。不管有多少妖魔鬼怪，你始终相信走完这条路就能取到真经。你善良、有原则，对身边每一个人都抱着善意，有时候显得过于心软，但正是这份真诚让大家愿意追随你。在班级里，你常常是大家的精神支柱，能用几句话让人重新找到方向。',
+    traits: [['坚持力', 98], ['同理心', 92], ['原则性', 90], ['灵活度', 45]],
+    tip: '你的善良和坚持是最闪亮的品质。但也要学会分辨谁值得信赖，保护好自己，善良要带点"防护罩"才更完整。'
+  },
+  八戒: {
+    name: '猪八戒',
+    alias: '天蓬元帅 / 悟能',
+    color: ['#3d9a30','#216d17'],
+    tags: ['开朗幽默','热爱生活','真实坦率','超级社牛'],
+    desc: '你就像猪八戒——全班气氛组的C位！你享受当下，活得真实，不会假装不累或假装不饿。你超级社牛，走进哪里都能带起欢声笑语。虽然有时候怕麻烦，但在真正需要的时候也会全力上阵。身边有你，大家都更轻松快乐。',
+    traits: [['社交力', 97], ['幽默感', 95], ['快乐感', 93], ['坚韧度', 55]],
+    tip: '你的快乐感染力是一种超能力！试着在享受生活的同时，多一点坚持和专注——你比自己想象的更有能力完成大事。'
+  },
+  沙僧: {
+    name: '沙悟净',
+    alias: '卷帘大将 / 悟净',
+    color: ['#4a7ab5','#2a5a95'],
+    tags: ['踏实可靠','低调内敛','坚韧耐劳','忠诚专一'],
+    desc: '你就像沙悟净——默默挑着那担行李，走完了十万八千里。你不争风头，不抢功劳，只是把该做的事一件一件做好。你值得信赖，朋友知道交给你的事一定会完成。低调的你是团队里最稳固的那块基石，没有你，很多事情根本无法运转。',
+    traits: [['可靠性', 99], ['执行力', 95], ['耐性', 97], ['存在感', 45]],
+    tip: '你的稳定和踏实让人安心！试着在做好事情的同时，多表达自己的想法——你的声音也很重要，让更多人听到你。'
+  },
+  白龙马: {
+    name: '白龙马',
+    alias: '小白龙 / 意马',
+    color: ['#38b2ac','#1d8a84'],
+    tags: ['默默承载','稳健执行','身份多面','不计回报'],
+    desc: '你就像白龙马——默默承载着最重要的人，一步一步走完全程，功劳从不挂嘴上。你做事踏实，不计较名利，是大家身后最可靠的依赖。你也有自己的想法，只是更喜欢用行动说话。你身上有一种难得的品质：不在乎被看见，只在乎把事做成。',
+    traits: [['稳定性', 98], ['默默付出', 97], ['适应力', 90], ['表达欲', 40]],
+    tip: '你的付出是真正的伟大！但也要学会适时说出自己的需求——好的团队会看见你，也需要听到你。'
+  },
+  观音: {
+    name: '观音菩萨',
+    alias: '南海观世音',
+    color: ['#d64fa8','#a0267a'],
+    tags: ['智慧通透','温柔有力','善解人意','运筹帷幄'],
+    desc: '你就像观音菩萨——智慧与慈悲并存，总能在关键时刻给出最恰当的解法。你看人很准，善于观察，能提前发现问题并悄悄帮大家解决。你不喜欢强出头，但每次出现都能稳住局面。身边有你，大家心里特别踏实。',
+    traits: [['智慧力', 97], ['洞察力', 95], ['同理心', 93], ['行动力', 72]],
+    tip: '你的智慧和温柔是一种稀有的组合！记得也照顾好自己——帮助别人固然好，但你自己的感受同样值得被重视。'
+  },
+  如来: {
+    name: '如来佛祖',
+    alias: '释迦牟尼 / 灵山之主',
+    color: ['#d4a017','#a07010'],
+    tags: ['深谋远虑','胸怀大局','从容淡定','洞察一切'],
+    desc: '你就像如来佛祖——一切都在你的掌握之中，即使表面平静，内心早已看穿结局。你思维深远，不轻易表态，但每次开口都击中要害。你不需要争，因为你早已知道事物的规律。在班级里，你是那个「话不多，但每次说话大家都安静下来听」的人。',
+    traits: [['大局观', 99], ['洞察力', 98], ['从容度', 96], ['活跃度', 50]],
+    tip: '你的远见和淡定非常难得！试着多参与日常的讨论和玩耍——你的智慧配上更多的存在感，会让你更有影响力。'
+  },
+  玉帝: {
+    name: '玉皇大帝',
+    alias: '天庭之主 / 昊天金阙玉皇大帝',
+    color: ['#9b4dca','#6a2498'],
+    tags: ['重视规则','统筹调度','注重权威','稳定秩序'],
+    desc: '你就像玉皇大帝——你相信秩序和规则，觉得一切井然有序才能运转良好。你有很强的责任感，喜欢统筹安排，当好"大后方"。有时候可能显得有点死板，但你的出发点永远是让整个团队更稳定。班级里有了你，大家更有规矩感。',
+    traits: [['规则意识', 98], ['统筹力', 90], ['责任感', 93], ['灵活度', 48]],
+    tip: '你的秩序感是团队的"稳定器"！试着在遵守规则的同时，也给自己和他人多一点弹性空间，规则是为人服务的。'
+  },
+};
+
+// ============================================================
+// 状态
+// ============================================================
+let currentQ = 0;
+let scores = new Array(8).fill(0);
+let answered = false;
+let selectedOpt = null;
+
+function startQuiz() {
+  document.getElementById('start-section').style.display = 'none';
+  document.getElementById('quiz-section').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const total = questions.length;
+  const pct = Math.round((currentQ / total) * 100);
+
+  document.getElementById('prog-text').textContent = `第 ${currentQ + 1} 题，共 ${total} 题`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+
+  answered = false;
+  selectedOpt = null;
+
+  const letters = ['A','B','C','D'];
+  let optsHtml = q.opts.map((o, i) => `
+    <button class="opt-btn" onclick="selectOpt(${i})" id="opt-${i}">
+      <span class="opt-letter">${letters[i]}</span>
+      <span>${o.text}</span>
+    </button>
+  `).join('');
+
+  document.getElementById('question-wrap').innerHTML = `
+    <div class="question-card">
+      <div class="question-num">第 ${currentQ+1} 题 / ${total}</div>
+      <div class="question-scene">${q.scene}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="options">${optsHtml}</div>
+      <div class="next-wrap">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">
+          ${currentQ < total - 1 ? '下一题 →' : '查看结果 🎉'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function selectOpt(idx) {
+  if (answered) return;
+  answered = true;
+  selectedOpt = idx;
+
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById(`opt-${i}`);
+    if (btn) btn.classList.remove('selected');
+  }
+  const selected = document.getElementById(`opt-${idx}`);
+  if (selected) selected.classList.add('selected');
+
+  const s = questions[currentQ].opts[idx].scores;
+  for (let r = 0; r < 8; r++) scores[r] += s[r];
+
+  document.getElementById('next-btn').classList.add('visible');
+}
+
+function nextQuestion() {
+  if (!answered) return;
+  currentQ++;
+  if (currentQ >= questions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz-section').style.display = 'none';
+  document.getElementById('result-section').style.display = 'block';
+
+  let maxScore = -1, maxIdx = 0;
+  for (let i = 0; i < 8; i++) {
+    if (scores[i] > maxScore) { maxScore = scores[i]; maxIdx = i; }
+  }
+  const winRole = ROLES[maxIdx];
+  const rd = roleData[winRole];
+
+  const traitHtml = rd.traits.map(([label, pct]) => `
+    <div class="trait-row">
+      <span class="trait-label">${label}</span>
+      <div class="trait-bar-wrap">
+        <div class="trait-bar" style="width:${pct}%"></div>
+      </div>
+      <span class="trait-pct">${pct}%</span>
+    </div>
+  `).join('');
+
+  const tagHtml = rd.tags.map(t => `<span class="tag">${t}</span>`).join('');
+  const svgIllus = roleIllustrations[winRole] || '';
+
+  document.getElementById('result-wrap').innerHTML = `
+    <div class="result-card">
+      <div class="result-header" style="background: linear-gradient(135deg, ${rd.color[0]}, ${rd.color[1]})">
+        <div class="result-illus">${svgIllus}</div>
+        <div class="result-subtitle">你的西游角色是</div>
+        <div class="result-name">${rd.name}</div>
+        <div class="result-alias">${rd.alias}</div>
+      </div>
+      <div class="result-body">
+        <div class="tag-group">${tagHtml}</div>
+        <p class="result-desc">${rd.desc}</p>
+        <div class="traits-title">🌟 你的能力图谱</div>
+        ${traitHtml}
+        <div class="school-tip">
+          <h4>📖 西佐老师寄语</h4>
+          <p>${rd.tip}</p>
+        </div>
+        <button class="retry-btn" onclick="retryQuiz()">🔄 再测一次</button>
+        <div class="share-row">
+          <button class="share-btn" onclick="copyResult('${rd.name}')">📋 复制结果分享给朋友</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function retryQuiz() {
+  currentQ = 0;
+  scores = new Array(8).fill(0);
+  answered = false;
+  selectedOpt = null;
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('start-section').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function copyResult(name) {
+  const text = `我在"西佐读名著"测出来是【${name}】！快来测测你是西游记里的哪个角色？`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => alert('✅ 已复制，快去分享给朋友吧！'));
+  } else {
+    alert('你的结果：' + text);
+  }
+}
+</script>
+</body>
+</html>
