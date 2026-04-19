@@ -1487,16 +1487,54 @@ let currentQ = 0;
 let scores = new Array(8).fill(0);
 let answered = false;
 let selectedOpt = null;
+let currentSelection = null;
+
+// 随机打乱数组（Fisher-Yates算法）
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// 生成随机化的题目（题目顺序随机 + 每道题选项顺序随机）
+let randomizedQuestions = [];
+
+function generateRandomizedQuestions() {
+  // 1. 先打乱题目顺序
+  const shuffledQuestions = shuffleArray(questions);
+  
+  // 2. 对每道题，打乱选项顺序，并记录原始索引用于计分
+  randomizedQuestions = shuffledQuestions.map(q => {
+    const originalOpts = q.opts.map((opt, idx) => ({ ...opt, originalIndex: idx }));
+    const shuffledOpts = shuffleArray(originalOpts);
+    return {
+      ...q,
+      opts: shuffledOpts
+    };
+  });
+}
 
 function startQuiz() {
+  // 每次开始测试都重新随机化题目
+  generateRandomizedQuestions();
+  currentQ = 0;
+  scores = new Array(8).fill(0);
+  answered = false;
+  selectedOpt = null;
+  currentSelection = null;
+  
   document.getElementById('start-section').style.display = 'none';
   document.getElementById('quiz-section').style.display = 'block';
+  document.getElementById('result-section').style.display = 'none';
   renderQuestion();
 }
 
 function renderQuestion() {
-  const q = questions[currentQ];
-  const total = questions.length;
+  const q = randomizedQuestions[currentQ];
+  const total = randomizedQuestions.length;
   const pct = Math.round((currentQ / total) * 100);
 
   document.getElementById('prog-text').textContent = `第 ${currentQ + 1} 题，共 ${total} 题`;
@@ -1505,6 +1543,7 @@ function renderQuestion() {
 
   answered = false;
   selectedOpt = null;
+  currentSelection = null;
 
   const letters = ['A','B','C','D'];
   let optsHtml = q.opts.map((o, i) => `
@@ -1529,8 +1568,6 @@ function renderQuestion() {
   `;
 }
 
-let currentSelection = null; // 记录当前选择，未确认前可修改
-
 function selectOpt(idx) {
   // 允许重新选择，不限制answered状态
   selectedOpt = idx;
@@ -1553,8 +1590,9 @@ function confirmSelection() {
   if (selectedOpt === null || answered) return;
   answered = true;
 
-  // 记录分数
-  const s = questions[currentQ].opts[selectedOpt].scores;
+  // 记录分数（使用 randomizedQuestions 中存储的原始索引对应的分数）
+  const selectedOption = randomizedQuestions[currentQ].opts[selectedOpt];
+  const s = selectedOption.scores;
   for (let r = 0; r < 8; r++) scores[r] += s[r];
 
   // 进入下一题或显示结果
@@ -1563,7 +1601,7 @@ function confirmSelection() {
     answered = false;
     selectedOpt = null;
     currentSelection = null;
-    if (currentQ >= questions.length) {
+    if (currentQ >= randomizedQuestions.length) {
       showResult();
     } else {
       renderQuestion();
@@ -1629,6 +1667,8 @@ function showResult() {
 }
 
 function retryQuiz() {
+  // 重新随机化题目，让每次测试都不一样
+  generateRandomizedQuestions();
   currentQ = 0;
   scores = new Array(8).fill(0);
   answered = false;
